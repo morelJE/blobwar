@@ -9,8 +9,48 @@ pub struct MinMax(pub u8);
 
 impl Strategy for MinMax {
     fn compute_next_move(&mut self, state: &Configuration) -> Option<Movement> {
-        unimplemented!("TODO: implementer min max")
+        fn min(state: &Configuration, depth: u8) -> i8 {
+            if depth == 0 {
+                return state.value()
+            }
+            let mut mini = 63i8;
+            let mut res;
+            for it in state.movements() {
+                res = max(&state.play(&it), depth - 1);
+                if mini > res {
+                    mini = res;
+                }
+            }
+            mini
+        }
+        fn max(state: &Configuration, depth: u8) -> i8 {
+            if depth == 0 {
+                return state.value()
+            }
+            let mut maxi = -63i8;
+            let mut res;
+            for it in state.movements() {
+                res = min(&state.play(&it), depth - 1);
+                if maxi < res {
+                    maxi = res;
+                }
+            }
+            maxi
+        }
+
+        let mut maxi = -63i8;
+        let mut res;
+        let mut mouv = None;
+        for it in state.movements() {
+            res = min(&state.play(&it), self.0 - 1);
+            if maxi < res {
+                maxi = res;
+                mouv = Some(it);
+            }
+        }
+        mouv
     }
+
 }
 
 impl fmt::Display for MinMax {

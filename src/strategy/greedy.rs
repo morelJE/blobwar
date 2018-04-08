@@ -19,7 +19,7 @@ impl Strategy for Greedy {
         let mut max = -63i8;
         let mut mmax = None;
         for it in state.movements() {
-            if (max < state.play(&it).value()) {
+            if max < state.play(&it).value() {
                 max = state.play(&it).value();
                 mmax = Some(it);
             }
