@@ -1,8 +1,11 @@
 //! Implementation of the min max algorithm.
+
 use std::fmt;
 use super::Strategy;
 use configuration::{Configuration, Movement};
 use shmem::AtomicMove;
+use rayon::prelude::*;
+
 
 /// Min-Max algorithm with a given recursion depth.
 pub struct MinMax(pub u8);
@@ -25,7 +28,7 @@ impl Strategy for MinMax {
         }
         fn max(state: &Configuration, depth: u8) -> i8 {
             if depth == 0 {
-                return state.value()
+                return -state.value()
             }
             let mut maxi = -63i8;
             let mut res;
@@ -38,17 +41,23 @@ impl Strategy for MinMax {
             maxi
         }
 
-        let mut maxi = -63i8;
-        let mut res;
-        let mut mouv = None;
-        for it in state.movements() {
+        // let mut maxi = -63i8;
+        // let mut res;
+        // let mut mouv = None;
+
+        //println!("hihi : {}", state.movements().map(|x| min(&state.play(&x), self.0 - 1)).zip(state.movements()).max_by(|&(_, item)| item));
+        state.movements().max_by_key(|x| min(&state.play(&x), self.0 - 1))
+        /*for it in state.movements() {
             res = min(&state.play(&it), self.0 - 1);
             if maxi < res {
                 maxi = res;
                 mouv = Some(it);
             }
         }
-        mouv
+        mouv*/
+        // mouv = state.movements().last();
+        // mouv
+
     }
 
 }
