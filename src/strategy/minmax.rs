@@ -17,31 +17,12 @@ impl Strategy for MinMax {
                 return state.value();
             }
             state.movements().collect::<Vec<Movement>>().into_par_iter().map(|x| max(&state.play(&x), depth - 1)).min().unwrap()
-            /*let mut mini = 63i8;
-            let mut res;
-
-            for it in state.movements() {
-                res = max(&state.play(&it), depth - 1);
-                if mini > res {
-                    mini = res;
-                }
-            }
-            mini*/
         }
         fn max(state: &Configuration, depth: u8) -> i8 {
             if depth == 0 {
                 return -state.value();
             }
             state.movements().collect::<Vec<Movement>>().into_par_iter().map(|x| min(&state.play(&x), depth - 1)).max().unwrap()
-            /*let mut maxi = -63i8;
-            let mut res;
-            for it in state.movements() {
-                res = min(&state.play(&it), depth - 1);
-                if maxi < res {
-                    maxi = res;
-                }
-            }
-            maxi*/
         }
         state.movements().collect::<Vec<Movement>>().into_par_iter().max_by_key(|x| min(&state.play(&x), self.0 - 1))
     }
