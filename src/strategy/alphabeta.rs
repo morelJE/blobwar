@@ -4,6 +4,7 @@ use std::cmp;
 use super::Strategy;
 use configuration::{Configuration, Movement};
 use shmem::AtomicMove;
+use rayon::prelude::*;
 
 /// Anytime alpha beta algorithm.
 /// Any time algorithms will compute until a deadline is hit and the process is killed.
@@ -82,6 +83,6 @@ impl Strategy for AlphaBeta {
 
         //println!("hihi : {}", state.movements().map(|x| min(&state.play(&x), self.0 - 1)).zip(state.movements()).max_by(|&(_, item)| item));
 
-        state.movements().max_by_key(|x| alpha_beta_min(&state.play(&x), -63i8, 63i8, self.0 - 1))
+        state.movements().collect::<Vec<Movement>>().into_par_iter().max_by_key(|x| alpha_beta_min(&state.play(&x), -63i8, 63i8, self.0 - 1))
     }
 }
