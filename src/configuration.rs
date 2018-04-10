@@ -243,6 +243,11 @@ impl<'a> Configuration<'a> {
             current_player,
         }
     }
+
+    /// Returns the number of blobs on the field
+    pub fn nb_blobs(&self) -> u8 {
+        (self.blobs[0].len() + self.blobs[1].len()) as u8
+    }
 }
 
 impl<'a> fmt::Display for Configuration<'a> {

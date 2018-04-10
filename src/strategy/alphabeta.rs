@@ -12,8 +12,24 @@ use rayon::prelude::*;
 /// This function is intended to be called from blobwar_iterative_deepening.
 pub fn alpha_beta_anytime(state: &Configuration) {
     let mut movement = AtomicMove::connect().expect("failed connecting to shmem");
-    for depth in 1..100 {
-        let chosen_movement = AlphaBeta(depth).compute_next_move(state);
+
+    let mut chosen_movement = AlphaBeta(depth).compute_next_move(state);
+    movement.store(chosen_movement);
+
+    //des cas sont plus rapides que d'autres. Nous avons utiliser des valeurs arbitraires pour ne pas perdre de temps dans des conditions
+    //mais pour optimiser la stratégie en fonction du nombre de blob (et donc du nombre de mouvement disponibles)
+    /*
+    let mut depth = 3;
+    let nb = state.nb_blobs;
+    if nb < 10 {
+        depth = 5;
+    } else if nb > 50 {
+        depth = 4;
+    } else {
+        depth = 3;
+    }*/
+    for i in 1..100 {
+        chosen_movement = AlphaBeta(depth + i).compute_next_move(state);
         movement.store(chosen_movement);
     }
 }
@@ -30,17 +46,13 @@ impl fmt::Display for AlphaBeta {
 impl Strategy for AlphaBeta {
     fn compute_next_move(&mut self, state: &Configuration) -> Option<Movement> {
 
-
         fn alpha_beta_max(state: &Configuration, alpha: i8, beta: i8, depth: u8) -> i8 {
-
             let mut new_alpha = alpha;
             if depth == 0 {
                 return -state.value();
             }
-
             let mut maxi = -63i8;
             let mut res;
-
             for it in state.movements() {
                 res = alpha_beta_min(&state.play(&it), new_alpha, beta, depth - 1);
                 if res >= beta {
@@ -55,15 +67,12 @@ impl Strategy for AlphaBeta {
         }
 
         fn alpha_beta_min(state: &Configuration, alpha: i8, beta: i8, depth: u8) -> i8 {
-
             let mut new_beta = beta;
             if depth == 0 {
                 return state.value();
             }
-
             let mut mini = 63i8;
             let mut res;
-
             for it in state.movements() {
                 res = alpha_beta_max(&state.play(&it), alpha, beta, depth - 1);
                 if res <= alpha {
@@ -76,12 +85,6 @@ impl Strategy for AlphaBeta {
             }
             mini
         }
-
-        // let mut maxi = -63i8;
-        // let mut res;
-        // let mut mouv = None;
-
-        //println!("hihi : {}", state.movements().map(|x| min(&state.play(&x), self.0 - 1)).zip(state.movements()).max_by(|&(_, item)| item));
 
         state.movements().collect::<Vec<Movement>>().into_par_iter().max_by_key(|x| alpha_beta_min(&state.play(&x), -63i8, 63i8, self.0 - 1))
     }
