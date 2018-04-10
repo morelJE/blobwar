@@ -12,14 +12,14 @@ use rayon::prelude::*;
 /// This function is intended to be called from blobwar_iterative_deepening.
 pub fn alpha_beta_anytime(state: &Configuration) {
     let mut movement = AtomicMove::connect().expect("failed connecting to shmem");
-
+    let depth = 3;
     let mut chosen_movement = AlphaBeta(depth).compute_next_move(state);
     movement.store(chosen_movement);
 
     //des cas sont plus rapides que d'autres. Nous avons utiliser des valeurs arbitraires pour ne pas perdre de temps dans des conditions
     //mais pour optimiser la stratégie en fonction du nombre de blob (et donc du nombre de mouvement disponibles)
     /*
-    let mut depth = 3;
+
     let nb = state.nb_blobs;
     if nb < 10 {
         depth = 5;
