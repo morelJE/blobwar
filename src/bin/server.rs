@@ -18,7 +18,7 @@ fn main() {
     let board = Board::load(map_name).expect("failed loading map");
     let mut game = Configuration::new(&board);
     game.battle(
-        IterativeDeepening::new(IterativeStrategy::MinMax),
+        IterativeDeepening::new(IterativeStrategy::AlphaBeta),
         players.next().unwrap(),
     );
 }
